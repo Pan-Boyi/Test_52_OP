@@ -1,0 +1,7 @@
+# 产物：输入数据和 .om 动辄上 GB，不进仓
+out/
+__pycache__/
+*.pyc
+*.om
+*.bin
+PROF_*/

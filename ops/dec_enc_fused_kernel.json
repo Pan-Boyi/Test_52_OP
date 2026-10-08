@@ -1,0 +1,167 @@
+{
+  "name": "dec_enc_fused_kernel",
+  "op_type": "DecEncFusedKernel",
+  "seed": 0,
+  "inputs": [
+    {
+      "name": "x",
+      "shape": [
+        1,
+        4,
+        2160,
+        3840
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": 0.0,
+        "hi": 1.0
+      }
+    },
+    {
+      "name": "channel_scale",
+      "shape": [
+        1,
+        4,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": 0.5,
+        "hi": 2.0
+      }
+    },
+    {
+      "name": "global_exponent",
+      "shape": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": 0.5,
+        "hi": 3.0
+      }
+    },
+    {
+      "name": "global_bias",
+      "shape": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": -1.0,
+        "hi": 1.0
+      }
+    },
+    {
+      "name": "channel_mix",
+      "shape": [
+        1,
+        4,
+        4,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": -1.0,
+        "hi": 1.0
+      }
+    },
+    {
+      "name": "tile_scale",
+      "shape": [
+        16,
+        4,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": 0.5,
+        "hi": 2.0
+      }
+    },
+    {
+      "name": "tile_exponent",
+      "shape": [
+        16,
+        1,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": 0.5,
+        "hi": 3.0
+      }
+    },
+    {
+      "name": "tile_bias",
+      "shape": [
+        16,
+        1,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": -1.0,
+        "hi": 1.0
+      }
+    },
+    {
+      "name": "tile_mix",
+      "shape": [
+        16,
+        4,
+        4,
+        1,
+        1
+      ],
+      "dtype": "float32",
+      "format": "ND",
+      "fill": {
+        "kind": "uniform",
+        "lo": -1.0,
+        "hi": 1.0
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "name": "y",
+      "shape": [
+        1,
+        32,
+        2160,
+        3840
+      ],
+      "dtype": "float32",
+      "format": "ND"
+    }
+  ],
+  "attrs": []
+}

@@ -1,0 +1,28 @@
+{
+  "soc_version": "MC62CM12AA",
+
+  "local_cann_env": "",
+  "local_opp_env": "",
+  "atc_bin": "",
+  "atc_timeout": 1800,
+
+  "remote": {
+    "host": "",
+    "user": "root",
+    "port": 22,
+    "dir": "/root/opbench",
+    "password_env": "OPBENCH_REMOTE_PASSWORD",
+    "auth": "auto",
+    "identity": "",
+    "cann_env": "",
+    "device": 0,
+    "repeat": 10,
+    "warmup": 1
+  },
+
+  "profile": {
+    "enabled": true,
+    "msprof": "/var/msprof",
+    "tbe_work_test_suit": ""
+  }
+}
