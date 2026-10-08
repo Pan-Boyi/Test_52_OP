@@ -253,24 +253,41 @@ class Remote(object):
         out, _ = p.communicate()
         return p.returncode, out.decode("utf-8", "replace")
 
-    def scp_to(self, local, remote):
+    def scp_to(self, locals_, remote):
+        """上传。locals_ 是**本地路径的列表**，不是一个目录加 "/."。
+
+        不能写 scp -r <dir>/. —— OpenSSH 9.0 起 scp 默认走 SFTP 后端，而 SFTP 后端
+        拒绝 "." 这个文件名：
+            error: unexpected filename: .
+        旧的 SCP 协议接受 <dir>/.，所以这个写法在老机器上是好的，换到新机器就断。
+        加 -O 能强制退回旧协议，但那个标志上游已标记废弃、迟早移除，不值得依赖。
+        逐个列出条目对两种后端都成立，所以用这个。
+        """
         env = dict(os.environ)
         if self.password:
             env["SSHPASS"] = self.password
-        opts = [o for o in self._base_opts()]
         # scp 用 -P 而不是 -p 指定端口；-p 在 scp 里是「保留时间戳」。
-        opts = ["-P" if o == "-p" else o for o in opts]
-        argv = self._sshpass() + ["scp", "-r"] + opts + [local, "%s:%s" % (self.target, remote)]
-        print("  $ scp -r %s %s:%s" % (local, self.target, remote))
+        opts = ["-P" if o == "-p" else o for o in self._base_opts()]
+        argv = (self._sshpass() + ["scp", "-r"] + opts + list(locals_)
+                + ["%s:%s" % (self.target, remote)])
+        print("  $ scp -r %s %s:%s"
+              % (" ".join(os.path.basename(p) for p in locals_), self.target, remote))
         return subprocess.call(argv, env=env)
 
-    def scp_from(self, remote, local):
+    def scp_from(self, remotes, local):
+        """下载。remotes 是**远端路径的列表**；不要在里面放通配符。
+
+        远端通配（out_*.bin）在旧 SCP 协议下由远端 shell 展开，换到 SFTP 后端之后
+        行为不一样 —— 而且本来就没必要猜：要取哪几个文件 manifest 里写着。
+        """
         env = dict(os.environ)
         if self.password:
             env["SSHPASS"] = self.password
         opts = ["-P" if o == "-p" else o for o in self._base_opts()]
-        argv = self._sshpass() + ["scp", "-r"] + opts + ["%s:%s" % (self.target, remote), local]
-        print("  $ scp -r %s:%s %s" % (self.target, remote, local))
+        srcs = ["%s:%s" % (self.target, r) for r in remotes]
+        argv = self._sshpass() + ["scp", "-r"] + opts + srcs + [local]
+        print("  $ scp -r %s:{%s} %s"
+              % (self.target, ",".join(os.path.basename(r) for r in remotes), local))
         return subprocess.call(argv, env=env)
 
 
@@ -576,7 +593,11 @@ def do_push(rt, paths, om_name):
                                                     shlex.quote(rt.remote_dir)))
     if rc != 0:
         die("远端建目录失败（rc=%d）" % rc)
-    rc = rt.scp_to(bundle + "/.", rt.remote_dir)
+    # 逐个条目上传，不写 bundle/.（原因见 Remote.scp_to 的注释）。
+    entries = [os.path.join(bundle, e) for e in sorted(os.listdir(bundle))]
+    if not entries:
+        die("bundle 是空的：%s" % bundle)
+    rc = rt.scp_to(entries, rt.remote_dir)
     if rc != 0:
         die("scp 上传失败（rc=%d）" % rc)
     rc = rt.ssh("cd %s && sha256sum -c SHA256SUMS >/dev/null"
@@ -657,17 +678,25 @@ def do_run(rt, om_name, use_msprof, msprof):
 
 def do_pull(rt, paths, prof_name):
     os.makedirs(paths["prof"], exist_ok=True)
-    # 设备输出（给精度比对用）
-    rc = rt.scp_from(rt.remote_dir + "/case/out_*.bin", paths["case"])
-    if rc != 0:
-        print("  [!] 没取到设备输出 out_*.bin（rc=%d）；只看性能的话可以忽略" % rc)
+    # 设备输出（给精度比对用）。文件名从 manifest 读，不用远端通配 —— 要取哪几个
+    # 文件本来就是已知的，而通配在 SFTP 后端下的行为和旧协议不同。
+    mpath = os.path.join(paths["case"], "manifest.json")
+    if os.path.isfile(mpath):
+        man = load_json(mpath)
+        outs = [rt.remote_dir + "/case/" + t["file"] for t in man.get("outputs") or []]
+        if outs:
+            rc = rt.scp_from(outs, paths["case"])
+            if rc != 0:
+                print("  [!] 没取到设备输出（rc=%d）；只看性能的话可以忽略" % rc)
+    else:
+        print("  [!] 没有 manifest.json，跳过取设备输出")
     if not prof_name:
         return None
     local = os.path.join(paths["prof"], prof_name)
     if os.path.isdir(local):
         import shutil
         shutil.rmtree(local)
-    rc = rt.scp_from(rt.remote_dir + "/" + prof_name, paths["prof"])
+    rc = rt.scp_from([rt.remote_dir + "/" + prof_name], paths["prof"])
     if rc != 0:
         die("取回 PROF 目录失败（rc=%d）" % rc)
     print("  PROF -> %s" % local)
