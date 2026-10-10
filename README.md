@@ -81,6 +81,30 @@ read -rs OPBENCH_REMOTE_PASSWORD && export OPBENCH_REMOTE_PASSWORD
 
 `attrs` 的 `type` 支持 `int` / `bool` / `float` / `string` / `list_int` / `list_float`。
 
+### DecEncFusedKernel 的三个用例
+
+`ops/` 下这三个 JSON 由 `ops/gen_dec_enc_fused_kernel.py` 生成，别手改 —— 它们的
+`tile_*` 首维必须等于 `nTiles = (H/540)*(W/960)`，手写很容易写得不自洽（给短了算子会
+读到参数缓冲里的垃圾，给长了 tiling 直接拒）。
+
+| 文件 | 形状 | dtype | 用处 |
+|---|---|---|---|
+| `dec_enc_fused_kernel.json` | 2160×3840（16 tile） | fp32 | 基线，和之前上板跑过的那组一样，便于对比性能 |
+| `dec_enc_fused_kernel_fp16.json` | 2160×3840（16 tile） | fp16 | 单独验 dtype 这条轴 |
+| `dec_enc_fused_kernel_small.json` | 1080×1920（4 tile） | fp32 | **最该先跑的一个** |
+
+第三个最该先跑：它的 `W < 3840`，于是块号算式 `t = (h/540)*wBlk + (w/960)` 里的进制
+`wBlk = 2 ≠ 4`。把进制写死成常量 4 的实现只有 `W == 3840` 时是对的，**这个用例是唯一
+能在板上抓住它的**，而且抓法是出错数、不是报错。
+
+要别的形状：
+
+```bash
+python3 ops/gen_dec_enc_fused_kernel.py 1620 2880 float16
+```
+
+H 取 540 的 1..4 倍、W 取 960 的 1..4 倍，脚本会拒掉族外的组合。
+
 dtype 支持 `float32` `float16` `bfloat16` `int8` `int32` `uint8` `int16` `uint16`
 `uint32` `int64` `uint64` `double` `bool`。
 

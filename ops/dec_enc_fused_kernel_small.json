@@ -1,16 +1,16 @@
 {
-  "name": "dec_enc_fused_kernel_2160x3840_float32",
+  "name": "dec_enc_fused_kernel_1080x1920_float32",
   "op_type": "DecEncFusedKernel",
   "seed": 0,
-  "_comment": "H=2160 W=3840 hBlk=4 wBlk=4 nTiles=16 dtype=float32",
+  "_comment": "H=1080 W=1920 hBlk=2 wBlk=2 nTiles=4 dtype=float32",
   "inputs": [
     {
       "name": "x",
       "shape": [
         1,
         4,
-        2160,
-        3840
+        1080,
+        1920
       ],
       "dtype": "float32",
       "format": "ND",
@@ -88,7 +88,7 @@
     {
       "name": "tile_scale",
       "shape": [
-        16,
+        4,
         4,
         1,
         1
@@ -104,7 +104,7 @@
     {
       "name": "tile_exponent",
       "shape": [
-        16,
+        4,
         1,
         1,
         1
@@ -120,7 +120,7 @@
     {
       "name": "tile_bias",
       "shape": [
-        16,
+        4,
         1,
         1,
         1
@@ -136,7 +136,7 @@
     {
       "name": "tile_mix",
       "shape": [
-        16,
+        4,
         4,
         4,
         1,
@@ -157,8 +157,8 @@
       "shape": [
         1,
         32,
-        2160,
-        3840
+        1080,
+        1920
       ],
       "dtype": "float32",
       "format": "ND"

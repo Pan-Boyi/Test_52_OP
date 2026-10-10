@@ -1,8 +1,8 @@
 {
-  "name": "dec_enc_fused_kernel_2160x3840_float32",
+  "name": "dec_enc_fused_kernel_2160x3840_float16",
   "op_type": "DecEncFusedKernel",
   "seed": 0,
-  "_comment": "H=2160 W=3840 hBlk=4 wBlk=4 nTiles=16 dtype=float32",
+  "_comment": "H=2160 W=3840 hBlk=4 wBlk=4 nTiles=16 dtype=float16",
   "inputs": [
     {
       "name": "x",
@@ -12,7 +12,7 @@
         2160,
         3840
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -28,7 +28,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -44,7 +44,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -60,7 +60,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -77,7 +77,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -93,7 +93,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -109,7 +109,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -125,7 +125,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -142,7 +142,7 @@
         1,
         1
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND",
       "fill": {
         "kind": "uniform",
@@ -160,7 +160,7 @@
         2160,
         3840
       ],
-      "dtype": "float32",
+      "dtype": "float16",
       "format": "ND"
     }
   ],
